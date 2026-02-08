@@ -1,0 +1,150 @@
+<div class="reports-container">
+  <div class="page-header">
+    <h1 class="page-title">Reports & Analytics</h1>
+    <div class="export-buttons">
+      <button class="btn btn-secondary btn-sm" (click)="exportReport('PDF')">Export PDF</button>
+      <button class="btn btn-secondary btn-sm" (click)="exportReport('Excel')">Export Excel</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="spinner"></div>
+
+  <div *ngIf="!loading && stats">
+    <!-- Overview Cards -->
+    <div class="stats-grid">
+      <div class="stat-card stat-primary">
+        <div class="stat-icon">📊</div>
+        <div class="stat-content">
+          <div class="stat-label">Total Cases</div>
+          <div class="stat-value">{{ stats.totalCases }}</div>
+          <div class="stat-footer">All time</div>
+        </div>
+      </div>
+
+      <div class="stat-card stat-warning">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-content">
+          <div class="stat-label">Active Cases</div>
+          <div class="stat-value">{{ stats.activeCases }}</div>
+          <div class="stat-footer">{{ getActiveRate() }}% of total</div>
+        </div>
+      </div>
+
+      <div class="stat-card stat-success">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <div class="stat-label">Closed Cases</div>
+          <div class="stat-value">{{ stats.closedCases }}</div>
+          <div class="stat-footer">{{ getCompletionRate() }}% completion rate</div>
+        </div>
+      </div>
+
+      <div class="stat-card stat-info">
+        <div class="stat-icon">📈</div>
+        <div class="stat-content">
+          <div class="stat-label">Success Rate</div>
+          <div class="stat-value">{{ getCompletionRate() }}%</div>
+          <div class="stat-footer">Case resolution</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cases by Type -->
+    <div class="card">
+      <h3 class="card-title">Cases by Type</h3>
+      <div class="chart-container">
+        <div class="bar-chart">
+          <div *ngFor="let item of getCaseTypeData()" class="bar-item">
+            <div class="bar-label">{{ item.type }}</div>
+            <div class="bar-wrapper">
+              <div class="bar" [style.width.%]="item.percentage">
+                <span class="bar-text">{{ item.count }}</span>
+              </div>
+            </div>
+            <div class="bar-percentage">{{ item.percentage }}%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cases by Status -->
+    <div class="card">
+      <h3 class="card-title">Cases by Status</h3>
+      <div class="status-grid">
+        <div *ngFor="let item of getCaseStatusData()" class="status-item">
+          <div class="status-info">
+            <div class="status-name">{{ item.status }}</div>
+            <div class="status-count">{{ item.count }} cases</div>
+          </div>
+          <div class="status-chart">
+            <div class="circular-progress">
+              <span class="percentage">{{ item.percentage }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon">⏱️</div>
+        <div class="metric-content">
+          <div class="metric-label">Avg. Case Duration</div>
+          <div class="metric-value">45 days</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">📅</div>
+        <div class="metric-content">
+          <div class="metric-label">Hearings per Month</div>
+          <div class="metric-value">124</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">👨‍⚖️</div>
+        <div class="metric-content">
+          <div class="metric-label">Judge Workload</div>
+          <div class="metric-value">8.5 cases/judge</div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon">📝</div>
+        <div class="metric-content">
+          <div class="metric-label">Documents Filed</div>
+          <div class="metric-value">1,247</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Trends -->
+    <div class="card">
+      <h3 class="card-title">Monthly Statistics</h3>
+      <div class="trends-grid">
+        <div class="trend-item">
+          <div class="trend-label">Cases Filed</div>
+          <div class="trend-value">45</div>
+          <div class="trend-change positive">+12%</div>
+        </div>
+        <div class="trend-item">
+          <div class="trend-label">Cases Closed</div>
+          <div class="trend-value">38</div>
+          <div class="trend-change positive">+8%</div>
+        </div>
+        <div class="trend-item">
+          <div class="trend-label">Hearings Held</div>
+          <div class="trend-value">124</div>
+          <div class="trend-change negative">-5%</div>
+        </div>
+        <div class="trend-item">
+          <div class="trend-label">Verdicts Passed</div>
+          <div class="trend-value">32</div>
+          <div class="trend-change positive">+15%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<div class="calendar-container">
+  <div class="page-header">
+    <h1 class="page-title">Hearing Calendar</h1>
+  </div>
+
+  <div class="card calendar-card">
+    <!-- Calendar Header -->
+    <div class="calendar-header">
+      <button class="btn btn-secondary btn-sm" (click)="previousMonth()">← Previous</button>
+      <h2 class="calendar-title">{{ monthName }}</h2>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary btn-sm" (click)="today()">Today</button>
+        <button class="btn btn-secondary btn-sm" (click)="nextMonth()">Next →</button>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="spinner"></div>
+
+    <!-- Calendar Grid -->
+    <div class="calendar-grid" *ngIf="!loading">
+      <!-- Day Headers -->
+      <div class="calendar-day-header">Sun</div>
+      <div class="calendar-day-header">Mon</div>
+      <div class="calendar-day-header">Tue</div>
+      <div class="calendar-day-header">Wed</div>
+      <div class="calendar-day-header">Thu</div>
+      <div class="calendar-day-header">Fri</div>
+      <div class="calendar-day-header">Sat</div>
+
+      <!-- Calendar Days -->
+      <div 
+        *ngFor="let dayData of calendarDays"
+        class="calendar-day"
+        [class.other-month]="!dayData.isCurrentMonth"
+        [class.today]="dayData.isToday"
+        [class.has-hearings]="dayData.hearings && dayData.hearings.length > 0"
+      >
+        <div class="day-number">{{ dayData.day }}</div>
+        <div class="day-events">
+          <div 
+            *ngFor="let hearing of dayData.hearings.slice(0, 3)" 
+            class="calendar-event"
+            [title]="getCaseTitle(hearing) + ' - ' + formatTime(hearing.startTime)"
+          >
+            <span class="event-time">{{ formatTime(hearing.startTime) }}</span>
+            <span class="event-title">{{ getCaseTitle(hearing) }}</span>
+          </div>
+          <div *ngIf="dayData.hearings && dayData.hearings.length > 3" class="more-events">
+            +{{ dayData.hearings.length - 3 }} more
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="card" style="margin-top: 1.5rem;">
+    <h3 style="margin-bottom: 1rem;">Legend</h3>
+    <div class="legend-grid">
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #3b82f6;"></div>
+        <span>Scheduled Hearing</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #dbeafe; border: 2px solid #3b82f6;"></div>
+        <span>Today</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #f3f4f6;"></div>
+        <span>Other Month</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,148 @@
+<div class="hearings-container">
+  <div class="page-header">
+    <h1 class="page-title">Scheduled Hearings</h1>
+    <button class="btn btn-primary" (click)="openModal()" *ngIf="canScheduleHearing()">
+      + Schedule Hearing
+    </button>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section card">
+    <div class="filters-grid">
+      <div class="form-group">
+        <label>Filter by Date</label>
+        <input 
+          type="date" 
+          class="form-control"
+          [(ngModel)]="selectedDate"
+          (ngModelChange)="applyFilters()"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Filter by Status</label>
+        <select class="form-control" [(ngModel)]="selectedStatus" (ngModelChange)="applyFilters()">
+          <option value="">All Status</option>
+          <option *ngFor="let status of hearingStatuses" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hearings Table -->
+  <div class="card">
+    <div *ngIf="loading" class="spinner"></div>
+
+    <div *ngIf="!loading && filteredHearings.length === 0" class="no-data">
+      <p>No hearings scheduled</p>
+      <button class="btn btn-primary" (click)="openModal()" *ngIf="canScheduleHearing()">
+        Schedule First Hearing
+      </button>
+    </div>
+
+    <table class="table" *ngIf="!loading && filteredHearings.length > 0">
+      <thead>
+        <tr>
+          <th>Case</th>
+          <th>Hearing Date</th>
+          <th>Time</th>
+          <th>Courtroom</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let hearing of filteredHearings">
+          <td><strong>{{ getCaseTitle(hearing) }}</strong></td>
+          <td>{{ formatDate(hearing.hearingDate) }}</td>
+          <td>{{ formatTime(hearing.startTime) }} - {{ formatTime(hearing.endTime) }}</td>
+          <td>{{ hearing.courtroom }}</td>
+          <td>{{ hearing.hearingType }}</td>
+          <td><span class="badge" [ngClass]="getStatusClass(hearing.status)">{{ hearing.status }}</span></td>
+          <td>
+            <button class="btn-icon" title="View Details">👁️</button>
+            <button class="btn-icon" title="Edit">✏️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Upcoming Hearings Today -->
+  <div class="card" style="margin-top: 2rem;">
+    <h3 style="margin-bottom: 1rem;">Today's Hearings</h3>
+    <div class="hearings-grid">
+      <div class="hearing-card" *ngFor="let hearing of filteredHearings.slice(0, 3)">
+        <div class="hearing-time">{{ formatTime(hearing.startTime) }}</div>
+        <div class="hearing-details">
+          <div class="hearing-title">{{ getCaseTitle(hearing) }}</div>
+          <div class="hearing-info">{{ hearing.courtroom }} • {{ hearing.hearingType }}</div>
+        </div>
+        <div class="hearing-status">
+          <span class="badge" [ngClass]="getStatusClass(hearing.status)">{{ hearing.status }}</span>
+        </div>
+      </div>
+      <div *ngIf="filteredHearings.length === 0" class="no-hearings-today">
+        No hearings scheduled for today
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Schedule Hearing Modal -->
+<div class="modal" [class.active]="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Schedule New Hearing</h2>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+
+    <form [formGroup]="hearingForm" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Select Case *</label>
+          <select formControlName="case" class="form-control">
+            <option value="">Select a case</option>
+            <option *ngFor="let case of cases" [value]="case._id">
+              {{ case.caseNumber }} - {{ case.caseTitle }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Hearing Date *</label>
+          <input type="date" formControlName="hearingDate" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Hearing Type *</label>
+          <select formControlName="hearingType" class="form-control">
+            <option value="">Select Type</option>
+            <option *ngFor="let type of hearingTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Start Time *</label>
+          <input type="time" formControlName="startTime" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>End Time</label>
+          <input type="time" formControlName="endTime" class="form-control">
+        </div>
+
+        <div class="form-group full-width">
+          <label>Courtroom *</label>
+          <input type="text" formControlName="courtroom" class="form-control" placeholder="e.g., Court Room 3">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="hearingForm.invalid">Schedule Hearing</button>
+      </div>
+    </form>
+  </div>
+</div>

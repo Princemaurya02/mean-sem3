@@ -1,0 +1,35 @@
+<!-- Header (show only when logged in) -->
+<header class="header" *ngIf="currentUser && !isLoginPage()">
+  <div class="header-content">
+    <div class="logo">
+      <div style="font-size: 2rem;">⚖️</div>
+      <h1>Court Case Management</h1>
+    </div>
+    <div class="user-info" *ngIf="currentUser">
+      <div class="user-profile">
+        <div class="avatar">{{ currentUser.firstName[0] }}{{ currentUser.lastName[0] }}</div>
+        <div>
+          <div style="font-weight: 600;">{{ currentUser.firstName }} {{ currentUser.lastName }}</div>
+          <div style="font-size: 0.875rem; opacity: 0.9;">{{ currentUser.role }}</div>
+        </div>
+      </div>
+      <button class="btn btn-secondary btn-sm" (click)="logout()">Logout</button>
+    </div>
+  </div>
+</header>
+
+<!-- Navigation Menu -->
+<nav class="nav-container" *ngIf="currentUser && !isLoginPage()">
+  <div class="nav">
+    <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">Dashboard</a>
+    <a routerLink="/cases" routerLinkActive="active" class="nav-item">Cases</a>
+    <a routerLink="/hearings" routerLinkActive="active" class="nav-item">Hearings</a>
+    <a routerLink="/calendar" routerLinkActive="active" class="nav-item">Calendar</a>
+    <a routerLink="/reports" routerLinkActive="active" class="nav-item">Reports</a>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main>
+  <router-outlet></router-outlet>
+</main>

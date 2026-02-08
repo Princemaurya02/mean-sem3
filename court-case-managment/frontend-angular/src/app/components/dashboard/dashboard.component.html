@@ -1,0 +1,245 @@
+<div class="dashboard-container">
+  <!-- Welcome Header with Real-Time Info -->
+  <div class="welcome-header">
+    <div class="welcome-info">
+      <h1 class="welcome-title">{{ getWelcomeMessage() }}</h1>
+      <p class="welcome-subtitle">{{ getRoleMessage() }}</p>
+      <p class="last-update">
+        <span class="update-icon">🔄</span> Last updated: {{ formatDateTime(lastUpdated) }}
+        <span class="auto-refresh-badge">Auto-refreshes every 30s</span>
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary btn-sm" (click)="refreshData()" title="Refresh dashboard data">
+        🔄 Refresh Now
+      </button>
+      <button *ngIf="permissionService.canWrite()" class="btn btn-primary" (click)="createNewCase()">
+        + New Case
+      </button>
+    </div>
+  </div>
+
+  <!-- Staff View-Only Notice -->
+  <div *ngIf="permissionService.canOnlyView()" class="alert alert-info">
+    <strong>👁️ View-Only Mode</strong> - You can view all data but cannot create, edit, or delete records.
+  </div>
+
+  <!-- Real-Time Statistics Cards -->
+  <div class="stats-grid" *ngIf="stats">
+    <div class="stat-card stat-primary" (click)="viewAllCases()" style="cursor: pointer;">
+      <div class="stat-icon">📋</div>
+      <div class="stat-content">
+        <div class="stat-label">Total Cases</div>
+        <div class="stat-value">{{ stats.totalCases }}</div>
+        <div class="stat-footer">Click to view all</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-warning">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-content">
+        <div class="stat-label">Active Cases</div>
+        <div class="stat-value">{{ stats.activeCases }}</div>
+        <div class="stat-footer">In progress</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-success">
+      <div class="stat-icon">✅</div>
+      <div class="stat-content">
+        <div class="stat-label">Closed Cases</div>
+        <div class="stat-value">{{ stats.closedCases }}</div>
+        <div class="stat-footer">{{ getCompletionRate() }}% completion</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-info" (click)="viewAllHearings()" style="cursor: pointer;">
+      <div class="stat-icon">📅</div>
+      <div class="stat-content">
+        <div class="stat-label">Upcoming Hearings</div>
+        <div class="stat-value">{{ upcomingHearings.length }}</div>
+        <div class="stat-footer">Click to view all</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Cases Section with Edit Capability -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>📋 Recent Cases</h2>
+        <p class="section-subtitle">Latest cases created in the system - automatically updated</p>
+      </div>
+      <button class="btn btn-secondary btn-sm" (click)="viewAllCases()">View All Cases →</button>
+    </div>
+    
+    <div *ngIf="loading" class="spinner"></div>
+    
+    <div *ngIf="!loading && recentCases.length > 0" class="cases-table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Case Number</th>
+            <th>Case Title</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Filed Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let case of recentCases" class="case-row">
+            <td><strong class="case-number">{{ case.caseNumber }}</strong></td>
+            <td class="case-title">{{ case.caseTitle }}</td>
+            <td>{{ case.caseType }}</td>
+            <td><span class="badge" [ngClass]="getStatusClass(case.status)">{{ case.status }}</span></td>
+            <td><span class="badge" [ngClass]="getPriorityClass(case.priority)">{{ case.priority }}</span></td>
+            <td>{{ formatDate(case.filingDate) }}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn-icon" (click)="viewCase(case._id || '')" title="View Details">
+                  👁️
+                </button>
+                <button *ngIf="permissionService.canWrite()" 
+                        class="btn-icon edit-btn" 
+                        (click)="editCase(case)" 
+                        title="Edit Case">
+                  ✏️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!loading && recentCases.length === 0" class="no-data">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>No Cases Yet</h3>
+        <p>No cases have been created yet. <span *ngIf="permissionService.canWrite()">Create your first case to get started!</span></p>
+        <button *ngIf="permissionService.canWrite()" class="btn btn-primary" (click)="createNewCase()">
+          + Create First Case
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming Hearings Section with Case Linking -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <h2>📅 Upcoming Hearings</h2>
+        <p class="section-subtitle">Next scheduled hearings linked to cases</p>
+      </div>
+      <button class="btn btn-secondary btn-sm" (click)="viewAllHearings()">View All Hearings →</button>
+    </div>
+
+    <div *ngIf="upcomingHearings.length === 0" class="no-data">
+      <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <h3>No Upcoming Hearings</h3>
+        <p>No hearings have been scheduled yet.</p>
+      </div>
+    </div>
+
+    <div *ngIf="upcomingHearings.length > 0" class="hearings-grid">
+      <div class="hearing-card" *ngFor="let hearing of upcomingHearings">
+        <div class="hearing-time">
+          <div class="time-large">{{ formatTime(hearing.startTime) }}</div>
+          <div class="date-small">{{ formatDate(hearing.hearingDate) }}</div>
+        </div>
+        <div class="hearing-details">
+          <div class="hearing-case-link">
+            <span class="case-badge">Case #{{ getCaseNumber(hearing) }}</span>
+          </div>
+          <div class="hearing-title">{{ getCaseTitle(hearing) }}</div>
+          <div class="hearing-info">
+            <span class="info-item">📍 {{ hearing.courtroom }}</span>
+            <span class="info-item">⚖️ {{ hearing.hearingType }}</span>
+          </div>
+        </div>
+        <div class="hearing-status">
+          <span class="badge badge-scheduled">{{ hearing.status }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Summary Stats -->
+  <div class="quick-stats-section">
+    <h3 class="summary-title">📊 Quick Summary</h3>
+    <div class="quick-stats">
+      <div class="stat-box">
+        <div class="stat-number">{{ stats?.totalCases || 0 }}</div>
+        <div class="stat-text">Total Cases</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">{{ recentCases.length }}</div>
+        <div class="stat-text">Recent Cases</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">{{ upcomingHearings.length }}</div>
+        <div class="stat-text">Upcoming Hearings</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number">{{ getCompletionRate() }}%</div>
+        <div class="stat-text">Completion Rate</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Case Modal -->
+<div class="modal" [class.active]="showEditModal" (click)="closeEditModal()">
+  <div class="modal-content edit-modal" (click)="$event.stopPropagation()" *ngIf="editingCase">
+    <div class="modal-header">
+      <h2>✏️ Edit Case</h2>
+      <button class="close-btn" (click)="closeEditModal()">&times;</button>
+    </div>
+
+    <div class="edit-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Case Number (Read-only)</label>
+          <input type="text" class="form-control" [value]="editingCase.caseNumber" readonly>
+        </div>
+        <div class="form-group">
+          <label>Case Type</label>
+          <input type="text" class="form-control" [(ngModel)]="editingCase.caseType" readonly>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Case Title</label>
+        <input type="text" class="form-control" [(ngModel)]="editingCase.caseTitle">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Status</label>
+          <select class="form-control" [(ngModel)]="editingCase.status">
+            <option *ngFor="let status of caseStatuses" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select class="form-control" [(ngModel)]="editingCase.priority">
+            <option *ngFor="let priority of casePriorities" [value]="priority">{{ priority }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea class="form-control" [(ngModel)]="editingCase.description" rows="4"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="saveCase()">💾 Save Changes</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,166 @@
+<div class="cases-container">
+  <div class="page-header">
+    <h1 class="page-title">All Cases</h1>
+    <button class="btn btn-primary" (click)="openModal()" *ngIf="canCreateCase()">
+      + New Case
+    </button>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section card">
+    <div class="filters-grid">
+      <div class="form-group">
+        <input 
+          type="text" 
+          class="form-control" 
+          placeholder="Search by case number or title..."
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="applyFilters()"
+        />
+      </div>
+
+      <div class="form-group">
+        <select class="form-control" [(ngModel)]="selectedStatus" (ngModelChange)="applyFilters()">
+          <option value="">All Status</option>
+          <option *ngFor="let status of caseStatuses" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <select class="form-control" [(ngModel)]="selectedType" (ngModelChange)="applyFilters()">
+          <option value="">All Types</option>
+          <option *ngFor="let type of caseTypes" [value]="type">{{ type }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <select class="form-control" [(ngModel)]="selectedPriority" (ngModelChange)="applyFilters()">
+          <option value="">All Priorities</option>
+          <option *ngFor="let priority of priorities" [value]="priority">{{ priority }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cases Table -->
+  <div class="card">
+    <div *ngIf="loading" class="spinner"></div>
+
+    <div *ngIf="!loading && filteredCases.length === 0" class="no-data">
+      <p>No cases found</p>
+      <button class="btn btn-primary" (click)="openModal()" *ngIf="canCreateCase()">
+        Create Your First Case
+      </button>
+    </div>
+
+    <table class="table" *ngIf="!loading && filteredCases.length > 0">
+      <thead>
+        <tr>
+          <th>Case Number</th>
+          <th>Case Title</th>
+          <th>Type</th>
+          <th>Filing Date</th>
+          <th>Status</th>
+          <th>Priority</th>
+          <th>Next Hearing</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let case of filteredCases">
+          <td><strong>{{ case.caseNumber }}</strong></td>
+          <td>{{ case.caseTitle }}</td>
+          <td>{{ case.caseType }}</td>
+          <td>{{ formatDate(case.filingDate) }}</td>
+          <td><span class="badge" [ngClass]="getStatusClass(case.status)">{{ case.status }}</span></td>
+          <td><span class="badge" [ngClass]="getPriorityClass(case.priority)">{{ case.priority }}</span></td>
+          <td>{{ formatDate(case.nextHearingDate) }}</td>
+          <td>
+            <button class="btn-icon" (click)="viewCase(case._id || '')" title="View Details">
+              👁️
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- New Case Modal -->
+<div class="modal" [class.active]="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Create New Case</h2>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+
+    <form [formGroup]="caseForm" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Case Type *</label>
+          <select formControlName="caseType" class="form-control">
+            <option value="">Select Type</option>
+            <option *ngFor="let type of caseTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Priority *</label>
+          <select formControlName="priority" class="form-control">
+            <option *ngFor="let priority of priorities" [value]="priority">{{ priority }}</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Case Title *</label>
+          <input type="text" formControlName="caseTitle" class="form-control" placeholder="e.g., Smith vs. Johnson">
+        </div>
+
+        <div class="form-group">
+          <label>Plaintiff Name *</label>
+          <input type="text" formControlName="plaintiffName" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Plaintiff Contact</label>
+          <input type="tel" formControlName="plaintiffContact" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Plaintiff Email</label>
+          <input type="email" formControlName="plaintiffEmail" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Defendant Name *</label>
+          <input type="text" formControlName="defendantName" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Defendant Contact</label>
+          <input type="tel" formControlName="defendantContact" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Defendant Email</label>
+          <input type="email" formControlName="defendantEmail" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Courtroom *</label>
+          <input type="text" formControlName="courtroom" class="form-control" placeholder="e.g., Court Room 3">
+        </div>
+
+        <div class="form-group full-width">
+          <label>Case Description *</label>
+          <textarea formControlName="description" class="form-control" rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="caseForm.invalid">Create Case</button>
+      </div>
+    </form>
+  </div>
+</div>

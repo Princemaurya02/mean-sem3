@@ -1,0 +1,70 @@
+<div class="login-container">
+  <div class="login-box">
+    <div class="logo">
+      <div class="logo-icon">⚖️</div>
+      <h1>Court Case Management</h1>
+      <p class="subtitle">Digitalization of Legal Proceedings</p>
+    </div>
+
+    <div class="alert alert-error" *ngIf="error">
+      ❌ {{ error }}
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="email">📧 Email Address</label>
+        <input 
+          type="email" 
+          id="email"
+          formControlName="email"
+          class="form-control"
+          [class.is-invalid]="submitted && f['email'].errors"
+          placeholder="Enter your email"
+        />
+        <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+          <div *ngIf="f['email'].errors['required']">Email is required</div>
+          <div *ngIf="f['email'].errors['email']">Email must be a valid email address</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">🔒 Password</label>
+        <input 
+          type="password" 
+          id="password"
+          formControlName="password"
+          class="form-control"
+          [class.is-invalid]="submitted && f['password'].errors"
+          placeholder="Enter your password"
+        />
+        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+          <div *ngIf="f['password'].errors['required']">Password is required</div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading">
+        <span *ngIf="!loading">Login</span>
+        <span *ngIf="loading" class="spinner-small"></span>
+      </button>
+    </form>
+
+    <div class="credentials-section">
+      <h3>🔑 Test Credentials (Click to use):</h3>
+      <div class="credentials-list">
+        <div 
+          *ngFor="let cred of testCredentials" 
+          class="credential-item"
+          (click)="fillCredentials(cred.email, cred.password)"
+        >
+          <strong>{{ cred.role }}</strong>
+          <span>{{ cred.email }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>© 2026 Court Case Management System</p>
+      <p>Secure • Efficient • Transparent</p>
+    </div>
+  </div>
+</div>
