@@ -1,0 +1,62 @@
+[
+    {
+        "caseType": "Criminal",
+        "caseTitle": "State vs. John Doe - Burglary",
+        "priority": "High",
+        "plaintiff": {
+            "name": "State Department",
+            "contactNumber": "555-0101",
+            "email": "justice@state.gov",
+            "address": "123 Justice Way"
+        },
+        "defendant": {
+            "name": "John Doe",
+            "contactNumber": "555-0202",
+            "email": "john.doe@example.com",
+            "address": "456 Elm St"
+        },
+        "courtroom": "C101",
+        "description": "Burglary charges filed against defendant for incident on Feb 1st.",
+        "status": "Filed"
+    },
+    {
+        "caseType": "Civil",
+        "caseTitle": "Smith vs. Jones - Property Dispute",
+        "priority": "Medium",
+        "plaintiff": {
+            "name": "Alice Smith",
+            "contactNumber": "555-0303",
+            "email": "alice@email.com",
+            "address": "789 Oak Ave"
+        },
+        "defendant": {
+            "name": "Bob Jones",
+            "contactNumber": "555-0404",
+            "email": "bob@email.com",
+            "address": "321 Pine Rd"
+        },
+        "courtroom": "B202",
+        "description": "Dispute over boundary lines between adjacent properties.",
+        "status": "Under Review"
+    },
+    {
+        "caseType": "Family",
+        "caseTitle": "In re: Miller Guardianship",
+        "priority": "Urgent",
+        "plaintiff": {
+            "name": "Sarah Miller",
+            "contactNumber": "555-0505",
+            "email": "sarah.m@email.com",
+            "address": "555 Maple Dr"
+        },
+        "defendant": {
+            "name": "James Miller",
+            "contactNumber": "555-0606",
+            "email": "james.m@email.com",
+            "address": "555 Maple Dr"
+        },
+        "courtroom": "F303",
+        "description": "Urgent guardianship petition for minor child.",
+        "status": "Hearing Scheduled"
+    }
+]

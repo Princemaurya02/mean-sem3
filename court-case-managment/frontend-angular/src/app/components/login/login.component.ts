@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
 
   testCredentials = [
     { role: '👑 Admin', email: 'admin@court.com', password: 'Admin@123' },
-    { role: '📋 Staff', email: 'williams@court.com', password: 'Staff@123' }
+    { role: '📋 User', email: 'williams@court.com', password: 'Staff@123' }
   ];
 
   constructor(
